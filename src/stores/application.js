@@ -1,7 +1,11 @@
-import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
-function checkJWT(token) {
+export const useApplicationStore = defineStore('application', () => {
+  const userData = ref(null);
+
+  // Function to check the validity of the JWT token
+  function checkJWT(token) {
     try {
       if (!token) {
         return false;
@@ -9,7 +13,7 @@ function checkJWT(token) {
       const base64Url = token.split('.')[1];
       if (!base64Url) return false;
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(atob(base64));
+      const payload = JSON.parse(window.atob(base64));
       const currentTime = Math.floor(Date.now() / 1000);
       return currentTime < payload.exp;
     } catch (error) {
@@ -17,40 +21,49 @@ function checkJWT(token) {
       return false;
     }
   }
-  
-
-export const useApplicationStore = defineStore('application', () => {
-    const userData = ref(null);
-    const userRole = computed(() => {
-        return userData.value?.roles?.[0]; // Taking the first role as the user's primary role
-      });
-    // Actions to manage userData
-    const setUserData = (tempUserData) => {
-        userData.value = tempUserData;
-        persistUserData();
-    };
-    const persistUserData = () => {
-        localStorage.setItem('userData', JSON.stringify(userData.value));
-    };
-    const loadUserData = () => {
-        let tempUserData = localStorage.getItem('userData');
-        tempUserData = JSON.parse(tempUserData);
-        if (tempUserData === null || tempUserData === undefined) {
-            return;
-        }
-        userData.value = tempUserData;
-    };
-    const clearUserData = () => {
-        localStorage.removeItem('userData');
-        localStorage.removeItem('token'); // Clear the token from localStorage as well
-        userData.value = null;
-      };
-    const isAuthenticated = computed(() => {
-        const token = userData.value?.accessToken || localStorage.getItem('token');
-        // Assuming you store the token in localStorage and have a function to validate it
-        return token && checkJWT(token);
-    });
+  const userRole = computed(() => userData.value?.roles?.[0]);
+  // Function to set user data and store it in local storage
+const setUserData = (tempUserData) => {
+  console.log('Setting user data:', tempUserData);
+  userData.value = tempUserData;
+  localStorage.setItem('userData', JSON.stringify(userData.value));
+  console.log('After setting, userData:', userData.value);
+};
 
 
-    return { userData, setUserData, persistUserData, loadUserData, clearUserData, isAuthenticated,userRole };
+  // Function to load user data from local storage
+  const loadUserData = () => {
+    const tempUserData = localStorage.getItem('userData');
+    if (tempUserData) {
+      userData.value = JSON.parse(tempUserData);
+      console.log('Loaded user data from local storage:', userData.value);
+    }
+  };
+
+  // Function to clear user data and remove it from local storage
+  const clearUserData = () => {
+    console.log('Clearing user data');
+    localStorage.removeItem('userData');
+    userData.value = null;
+  };
+
+  // Computed property to check if the user is authenticated
+  const isAuthenticated = computed(() => {
+    const token = userData.value?.accessToken;
+    console.log('Current token:', token);
+    return token && checkJWT(token);
+  });
+  const accessToken = computed(() => userData.value?.accessToken);
+  // Load user data from local storage when the store is initialized
+  loadUserData();
+
+  return {
+    userData,
+    isAuthenticated,
+    userRole,
+    setUserData,
+    loadUserData,
+    clearUserData,
+    accessToken
+  };
 });

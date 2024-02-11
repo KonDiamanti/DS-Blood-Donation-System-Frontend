@@ -54,13 +54,11 @@ const form = reactive({
 
 const successMessage = ref('');
 const errorMessage = ref('');
-
 const store = useApplicationStore();
 
 const handleSubmit = async () => {
-  const API_URL = 'http://localhost:8080/api/bloodDonations/apply'; // Adjust if necessary
-  // Retrieve the token just before sending the request to ensure it's the current token
-  const authToken = store.userData.value?.accessToken;
+  const API_URL = 'http://localhost:8080/api/bloodDonations/apply';
+  const authToken = store.accessToken;
 
   if (!authToken) {
     errorMessage.value = 'You must be logged in to submit an application.';
@@ -72,35 +70,27 @@ const handleSubmit = async () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}` // Include the authorization header
+        'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify(form),
     });
 
-    if (!response.ok) {
-      // When the response has a JSON body
-      if (response.headers.get('Content-Type')?.includes('application/json')) {
-        const errorData = await response.json();
-        throw new Error(`Application failed: ${errorData.message || response.status}`);
-      }
-      // When the response does not have a JSON body
-      throw new Error('Application failed: Server responded with a status of ' + response.status);
+    if (response.ok) {
+      successMessage.value = 'Application successful! Thank you.';
+      errorMessage.value = '';
+      Object.keys(form).forEach(key => form[key] = null);
+    } else {
+      const errorData = await response.json();
+      throw new Error(`Application failed: ${errorData.message || response.status}`);
     }
-
-    successMessage.value = 'Application successful! Thank you.';
-    errorMessage.value = ''; // Clear any previous errors
-    // Reset form fields
-    Object.keys(form).forEach(key => form[key] = null);
   } catch (error) {
-    console.error('Application error', error);
-    successMessage.value = '';
+    console.error('Application error:', error);
     errorMessage.value = error.message || 'An unexpected error occurred.';
   }
 };
 </script>
 
 <style>
-/* Add any additional styling for your form here */
 .form-check-label {
   margin-left: 0.5rem;
 }

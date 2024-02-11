@@ -58,18 +58,14 @@ const router = createRouter({
     ]
 });
 
-router.beforeEach((to, from, next) => {
+  
+  router.beforeEach((to, from, next) => {
     const store = useApplicationStore();
-    const isAuthenticated = store.isAuthenticated;
-
-    console.log('Is user authenticated?', isAuthenticated);
-
-    if (to.meta.requiresAuth && !isAuthenticated.value) { // Ensure you're accessing the `value` if it's a ref
-        console.log('User not authenticated. Redirecting to /login');
-        next('/login');
+  
+    if (to.meta.requiresAuth && !store.isAuthenticated) {
+      next('/login');
     } else {
-        next();
+      next();
     }
-});
-
+  });
 export default router;
