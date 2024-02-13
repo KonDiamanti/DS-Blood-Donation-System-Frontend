@@ -82,6 +82,14 @@ const router = createRouter({
             component: () => import('../views/admin/UpdateUserView.vue'),
             meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
           },
+          {
+            path: '/admin/users-container',
+            name: 'ViewUserView',
+            component: () => import('../views/admin/ViewUsersView.vue'),
+            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
+          },
+          
+
 
         
 

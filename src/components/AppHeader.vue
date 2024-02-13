@@ -38,10 +38,19 @@
             <li v-if="isAuthenticated && userRole === 'ROLE_CITIZEN'" class="nav-item">
               <router-link to="/profile" class="nav-link">My Profile</router-link>
             </li>
+
+
             <!-- Specific links for secretaries -->
             <li v-if="isAuthenticated && userRole === 'ROLE_SECRETARY'" class="nav-item">
               <router-link to="/applications" class="nav-link">Manage Applications</router-link>
             </li>
+
+
+            <!-- Specific links for admins -->
+
+            <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
+            <router-link to="/admin/users-container" class="nav-link">View Users</router-link>
+          </li>
             <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
             <router-link to="/admin/add-user" class="nav-link">Add User</router-link>
           </li>

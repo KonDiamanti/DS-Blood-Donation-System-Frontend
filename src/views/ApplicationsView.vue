@@ -144,19 +144,28 @@ const updateApplicationStatus = async (status, rejectionReason = '') => {
     errorMessage.value = 'Application ID is not provided.';
     return;
   }
+  const secretaryEmail = store.email;
+  const secretaryUsername = store.username;
+  // Debug: Log the entire store state
+  console.log("Store state:", store);
 
-  // Retrieve the secretary's username from the store
-  const secretaryUsername = store.userData.value?.username; // Ensure you have the username available in the userData
+  // Debug: Log the userData from the store
+  console.log("User data in store:", store.userData);
 
-  if (!secretaryUsername) {
-    console.error('Secretary username not available');
-    errorMessage.value = 'Secretary username not available';
+  // Debug: Log the retrieved email and username
+  console.log("Secretary email:", secretaryEmail);
+  console.log("Secretary username:", secretaryUsername);
+
+  if (!secretaryEmail || !secretaryUsername) {
+    console.error('Secretary email or username not available');
+    errorMessage.value = 'Secretary email or username not available';
     return;
   }
 
   const queryParams = new URLSearchParams({
     status: status,
-    username: secretaryUsername, // Use the username instead of email
+    email: secretaryEmail,
+    username: secretaryUsername,
     rejectionReason: rejectionReason
   }).toString();
 
@@ -166,40 +175,41 @@ const updateApplicationStatus = async (status, rejectionReason = '') => {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${store.accessToken}`
+        'Authorization': `Bearer ${store.accessToken}` // Ensure accessToken is correctly accessed
       }
     });
+
+    // Debug: Log the response status
+    console.log("Response status:", response.status);
 
     if (!response.ok) {
       throw new Error('Failed to update application status');
     }
 
+    // Refresh the applications list and clear the selected details
     await fetchApplications();
     citizenDetails.value = null;
     selectedApplicationId.value = null;
   } catch (error) {
     console.error('Error updating application status:', error);
     errorMessage.value = error.toString();
+
+    // Debug: Log the error message
+    console.log("Error message:", errorMessage.value);
   }
 };
 
+  // Initial fetch of applications
+  fetchApplications();
+  </script>
 
 
+  <style scoped>
+  .citizen-details {
+    margin-top: 2rem;
+  }
 
-
-
-
-// Initial fetch of applications
-fetchApplications();
-</script>
-
-
-<style scoped>
-.citizen-details {
-  margin-top: 2rem;
-}
-
-.action-buttons {
-  margin-top: 1rem;
-}
-</style>
+  .action-buttons {
+    margin-top: 1rem;
+  }
+  </style>

@@ -32,10 +32,10 @@
     <label for="area" class="form-label">Area</label>
     <select id="area" class="form-control" v-model="form.area" required>
       <option value="">Select Area</option>
-      <option value="Kρατικό Νοσοκομειο">Κρατικό Νοσοκομείο</option>
-      <option value="Attico Nosokomeio">Αττικό Νοσοκομείο</option>
-      <option value="Tzaneio Nosokomeio">Τζάνειο Νοσοκομείο </option>
-      <option value="Euaggelismos Nosokomeio">Νοσοκομείο Ευαγγελισμού</option>
+      <option value="Kratiko Hospital">Kratiko Hospital</option>
+      <option value="Attikon Hospital">Attikon Hospital</option>
+      <option value="Tzaneio Hospital">Tzaneio Hospital </option>
+      <option value="Sismanoglio Hospital">Sismanoglio Hospital</option>
     </select>
   </div>
   <div class="mb-3">
