@@ -30,15 +30,19 @@
             </li>
             <!-- Specific links for citizens -->
             <li v-if="isAuthenticated && userRole === 'ROLE_CITIZEN'" class="nav-item">
-              <router-link to="/form" class="nav-link">Apply for Donations</router-link>
+              <router-link to="/form" class="nav-link">Apply for Donation</router-link>
             </li>
             <li v-if="isAuthenticated && userRole === 'ROLE_CITIZEN'" class="nav-item">
               <router-link to="/my-applications" class="nav-link">My Applications</router-link>
+            </li>
+            <li v-if="isAuthenticated && userRole === 'ROLE_CITIZEN'" class="nav-item">
+              <router-link to="/profile" class="nav-link">My Profile</router-link>
             </li>
             <!-- Specific links for secretaries -->
             <li v-if="isAuthenticated && userRole === 'ROLE_SECRETARY'" class="nav-item">
               <router-link to="/applications" class="nav-link">Manage Applications</router-link>
             </li>
+            
             <!-- Common logout link for authenticated users -->
             <li v-if="isAuthenticated" class="nav-item">
               <a class="nav-link" href="#" @click="logout">Logout</a>

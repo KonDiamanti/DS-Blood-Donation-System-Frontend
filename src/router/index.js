@@ -54,18 +54,38 @@ const router = createRouter({
             component: () => import('../views/MyApplicationsView.vue'),
             meta: { requiresAuth: true }
         },
-        // ... your other route definitions
+        {
+            path: '/admin/login',
+            name: 'AdminLogin',
+            component: () => import('../views/AdminLoginView.vue'),
+        },
+    
+        {
+            path: '/admin/dashboard',
+            name: 'AdminDashboard', // This name must match exactly what you use in router.push
+            component: () => import('../views/AdminDashboardView.vue'),
+            meta: { requiresAuth: true, role: 'admin' }
+        },
+        
+
     ]
 });
 
   
-  router.beforeEach((to, from, next) => {
-    const store = useApplicationStore();
-  
-    if (to.meta.requiresAuth && !store.isAuthenticated) {
-      next('/login');
-    } else {
-      next();
+router.beforeEach((to, from, next) => {
+    const applicationStore = useApplicationStore();
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const isAdminRoute = to.meta.role === 'admin';
+    
+    if (requiresAuth && !applicationStore.isAuthenticated) {
+      return next({ name: 'login' });
     }
+    
+    if (requiresAuth && isAdminRoute && applicationStore.userRole !== 'admin') {
+      return next({ name: 'home' });
+    }
+    
+    next();
   });
+  
 export default router;

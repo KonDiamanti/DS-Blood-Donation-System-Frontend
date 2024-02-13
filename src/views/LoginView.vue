@@ -38,32 +38,36 @@ export default {
     });
 
     const handleSubmit = async () => {
-      const API_URL = `http://localhost:8080/api/auth/signin`; // Adjust the URL as per your API endpoint
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: form.value.username,
-            password: form.value.password,
-          }),
-        });
+  const API_URL = `http://localhost:8080/api/auth/signin`;
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: form.value.username,
+        password: form.value.password,
+      }),
+    });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Login failed');
-        }
+    if (!response.ok) {
+      // Attempt to read the response body and parse it as JSON
+      const text = await response.text(); // Read the response as text first
+      const errorData = text ? JSON.parse(text) : {}; // Parse the text as JSON if it's not empty
+      const errorMessage = errorData.message || 'Incorrect username or password';
+      throw new Error(errorMessage);
+    }
 
-        const data = await response.json();
-        applicationStore.setUserData(data); // Use your method to set user data
-        router.push('/'); // Redirect to home page after login
-      } catch (error) {
-        console.error(error);
-        errorMessage.value = error.message;
-      }
-    };
+    const data = await response.json();
+    applicationStore.setUserData(data); // Use your method to set user data
+    router.push('/'); // Redirect to home page after login
+  } catch (error) {
+    console.error(error);
+    errorMessage.value = error.message;
+  }
+};
+
 
     return { form, userType, handleSubmit, errorMessage };
   },
