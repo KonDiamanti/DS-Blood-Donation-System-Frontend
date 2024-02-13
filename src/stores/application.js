@@ -26,10 +26,11 @@ export const useApplicationStore = defineStore('application', () => {
 
   const setUserData = (tempUserData) => {
     console.log('Setting user data:', tempUserData);
-    userData.value = tempUserData;
+    userData.value = { ...tempUserData, email: tempUserData.email }; 
     sessionStorage.setItem('userData', JSON.stringify(userData.value));
     console.log('After setting, userData:', userData.value);
   };
+  
 
 
   const loadUserData = () => {
@@ -43,15 +44,13 @@ export const useApplicationStore = defineStore('application', () => {
     sessionStorage.removeItem('userData');
     userData.value = null;
   };
-
-  // Computed property to check if the user is authenticated
-  const isAuthenticated = computed(() => {
-    const token = userData.value?.accessToken;
-    return token && checkJWT(token);
-  });
-
-  const accessToken = computed(() => userData.value?.accessToken);
-  // Load user data from local storage when the store is initialized
+  
+    const isAuthenticated = computed(() => {
+      const token = userData.value?.accessToken;
+      return token && checkJWT(token);
+    });
+  
+    const accessToken = computed(() => userData.value?.accessToken);
   loadUserData();
 
   return {

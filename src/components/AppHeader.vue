@@ -42,7 +42,18 @@
             <li v-if="isAuthenticated && userRole === 'ROLE_SECRETARY'" class="nav-item">
               <router-link to="/applications" class="nav-link">Manage Applications</router-link>
             </li>
-            
+            <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
+            <router-link to="/admin/add-user" class="nav-link">Add User</router-link>
+          </li>
+          <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
+            <router-link to="/admin/delete-user" class="nav-link">Delete User</router-link>
+          </li>
+          <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
+            <router-link to="/admin/update-user" class="nav-link">Update User</router-link>
+          </li>
+          <li v-if="isAuthenticated && userRole === 'ROLE_ADMIN'" class="nav-item">
+            <router-link to="/admin/assign-role" class="nav-link">Assign Role</router-link>
+          </li>
             <!-- Common logout link for authenticated users -->
             <li v-if="isAuthenticated" class="nav-item">
               <a class="nav-link" href="#" @click="logout">Logout</a>

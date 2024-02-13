@@ -71,6 +71,7 @@ export default {
 
     return { form, userType, handleSubmit, errorMessage };
   },
+  
 };
 </script>
 

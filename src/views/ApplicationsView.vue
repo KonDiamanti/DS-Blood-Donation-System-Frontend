@@ -36,32 +36,45 @@
     </div>
 
     <!-- Citizen Details Section -->
-    <div v-if="citizenDetails" class="citizen-details">
-      <h3>Citizen Details</h3>
-      <p><strong>ID:</strong> {{ citizenDetails.id }}</p>
-      <p><strong>First Name:</strong> {{ citizenDetails.firstName }}</p>
-      <p><strong>Last Name:</strong> {{ citizenDetails.lastName }}</p>
-      <p><strong>Email:</strong> {{ citizenDetails.email }}</p>
-      <p><strong>Age:</strong> {{ citizenDetails.age }}</p>
-      
-      <h4>Donation Details</h4>
-      <ul>
-        <li><strong>Status:</strong> {{ citizenDetails.donationDetails.status }}</li>
-        <li><strong>Processed By:</strong> {{ citizenDetails.donationDetails.processedBySecretary }}</li>
-        <p><strong>Processed At:</strong> {{ citizenDetails.donationDetails.processedAt && new Date(citizenDetails.donationDetails.processedAt).getTime() > 0 ? new Date(citizenDetails.donationDetails.processedAt).toLocaleString() : 'Not processed yet' }}</p>
-      </ul>
-      
-      <div class="action-buttons">
-        <button @click="updateApplicationStatus(selectedApplicationId, 'APPROVED')" class="btn btn-success">Accept</button>
-        <button @click="updateApplicationStatus(selectedApplicationId, 'REJECTED')" class="btn btn-danger">Reject</button>
-      </div>
-    </div>
+<div v-if="citizenDetails" class="citizen-details">
+  <h3>Citizen Details</h3>
+  <p><strong>ID:</strong> {{ citizenDetails.id }}</p>
+  <p><strong>First Name:</strong> {{ citizenDetails.firstName }}</p>
+  <p><strong>Last Name:</strong> {{ citizenDetails.lastName }}</p>
+  <p><strong>Email:</strong> {{ citizenDetails.email }}</p>
+  <p><strong>Age:</strong> {{ citizenDetails.age }}</p>
+  <h4>Donation Details</h4>
+<ul>
+  <li><strong>Status:</strong> {{ citizenDetails.donationDetails.status }}</li>
+  <li><strong>Created At:</strong> {{ new Date(citizenDetails.donationDetails.createdAt).toLocaleString() }}</li>
+  <li><strong>Processed By Secretary:</strong> {{ citizenDetails.donationDetails.processedBySecretary || 'N/A' }}</li>
+  <li><strong>Processed At:</strong> {{ citizenDetails.donationDetails.processedAt ? new Date(citizenDetails.donationDetails.processedAt).toLocaleString() : 'Not processed yet' }}</li>
+  <li><strong>Free of Infections:</strong> {{ citizenDetails.donationDetails.freeOfInfections }}</li>
+  <li><strong>No Tattoos/Piercings:</strong> {{ citizenDetails.donationDetails.hasNoTattoosOrPiercings }}</li>
+  <li><strong>No Recent Procedures:</strong> {{ citizenDetails.donationDetails.hasNoRecentProcedures }}</li>
+  <li><strong>No Travel to Risk Areas:</strong> {{ citizenDetails.donationDetails.hasNoTravelToRiskAreas }}</li>
+  <li><strong>No Risk Behavior:</strong> {{ citizenDetails.donationDetails.hasNoRiskBehavior }}</li>
+  <li><strong>Not Recently Pregnant:</strong> {{ citizenDetails.donationDetails.notRecentlyPregnant }}</li>
+  <li><strong>Not Breastfeeding:</strong> {{ citizenDetails.donationDetails.notBreastfeeding }}</li>
+  <li><strong>No Drug Use:</strong> {{ citizenDetails.donationDetails.hasNoDrugUse }}</li>
+  <li><strong>Has AIDS:</strong> {{ citizenDetails.donationDetails.hasAIDS }}</li>
+</ul>
+
+  
+  <div class="action-buttons">
+    <button @click="updateApplicationStatus('APPROVED')" class="btn btn-success">Accept</button>
+    <button @click="updateApplicationStatus('REJECTED')" class="btn btn-danger">Reject</button>
+  </div>
+</div>
+
   </div>
 </template>
 
 <script setup>
+
+
 import { ref } from 'vue';
-import { useApplicationStore, checkJWT } from '@/stores/application';
+import { useApplicationStore } from '@/stores/application';
 
 const store = useApplicationStore();
 const applications = ref([]);
@@ -71,22 +84,7 @@ const errorMessage = ref('');
 const citizenDetails = ref(null);
 const selectedApplicationId = ref(null);
 
-const logAndCheckToken = () => {
-  const token = store.accessToken;
-  console.log(`Token from store: ${token}`);
-
-  if (!token) {
-    console.error('No token found in store.');
-    return false;
-  }
-
-  // Directly use checkJWT to validate the token
-  const isValid = checkJWT(token);
-  console.log(`Is token valid? ${isValid}`);
-
-  return isValid;
-};
-
+// Fetch all applications based on the selected status
 async function fetchApplications() {
   loading.value = true;
   errorMessage.value = '';
@@ -99,88 +97,102 @@ async function fetchApplications() {
       },
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch applications');
+    if (response.ok) {
+      applications.value = await response.json();
+    } else {
+      throw new Error('Failed to fetch applications');
     }
-
-    applications.value = await response.json();
   } catch (error) {
-    errorMessage.value = error.message;
+    errorMessage.value = error.message || 'An error occurred while fetching applications.';
   } finally {
     loading.value = false;
   }
 }
 
-
-async function fetchCitizenDetails(citizenId) {
-  if (!logAndCheckToken()) {
-    errorMessage.value = 'You are not authenticated or your session has expired.';
+// Fetch citizen details for a specific application
+async function fetchCitizenDetails(applicationId) {
+  if (!applicationId) {
+    errorMessage.value = 'Application ID is not provided.';
     return;
   }
 
   loading.value = true;
-  // Define API_URL at the beginning of fetchCitizenDetails function
-  const API_URL = `http://localhost:8080/api/secretary/getDetails/${citizenId}`;
+  errorMessage.value = '';
+  const API_URL = `http://localhost:8080/api/secretary/getDetails/${applicationId}`;
   try {
     const response = await fetch(API_URL, {
-      method: 'GET',
       headers: {
         'Authorization': `Bearer ${store.accessToken}`,
       },
     });
 
-    // Check the response status
-    if (!response.ok) {
-      const status = response.status;
-      const statusText = response.statusText;
-      const responseBody = await response.text();
-      console.error(`Error fetching details: ${status} ${statusText}`, responseBody);
-      throw new Error(`Failed to fetch citizen details: ${statusText}`);
+    if (response.ok) {
+      citizenDetails.value = await response.json();
+      selectedApplicationId.value = applicationId; 
+    } else {
+      throw new Error('Failed to fetch citizen details');
     }
-
-    const details = await response.json();
-    // Log the details
-    console.log('Fetched citizen details:', details);
-    citizenDetails.value = details;
   } catch (error) {
-    console.error('Error fetching citizen details:', error);
-    errorMessage.value = error.message || 'An unexpected error occurred while fetching citizen details.';
+    errorMessage.value = error.message || 'An error occurred while fetching citizen details.';
   } finally {
     loading.value = false;
   }
 }
-// Define the function within your <script setup>
-async function updateApplicationStatus(status) {
+
+const updateApplicationStatus = async (status, rejectionReason = '') => {
   if (!selectedApplicationId.value) {
-    console.error('Application ID is null.');
+    errorMessage.value = 'Application ID is not provided.';
     return;
   }
 
-  const API_URL = `http://localhost:8080/api/bloodDonations/applications/${selectedApplicationId.value}/status`;
+  // Retrieve the secretary's username from the store
+  const secretaryUsername = store.userData.value?.username; // Ensure you have the username available in the userData
+
+  if (!secretaryUsername) {
+    console.error('Secretary username not available');
+    errorMessage.value = 'Secretary username not available';
+    return;
+  }
+
+  const queryParams = new URLSearchParams({
+    status: status,
+    username: secretaryUsername, // Use the username instead of email
+    rejectionReason: rejectionReason
+  }).toString();
+
+  const API_URL = `http://localhost:8080/api/bloodDonations/applications/${selectedApplicationId.value}/status?${queryParams}`;
+
   try {
     const response = await fetch(API_URL, {
-      method: 'POST', // Or 'PATCH', according to your backend requirement
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${store.accessToken}`
-      },
-      body: JSON.stringify({ status }) // Make sure this matches the expected format of your backend
+      }
     });
 
     if (!response.ok) {
       throw new Error('Failed to update application status');
     }
 
-    // Handle the success response
-    fetchApplications(); // Refresh the applications list
+    await fetchApplications();
+    citizenDetails.value = null;
+    selectedApplicationId.value = null;
   } catch (error) {
     console.error('Error updating application status:', error);
+    errorMessage.value = error.toString();
   }
-}
+};
 
+
+
+
+
+
+
+// Initial fetch of applications
 fetchApplications();
 </script>
+
 
 <style scoped>
 .citizen-details {

@@ -9,7 +9,6 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            // component: HomeView,
             component: () => import('../views/HomeView.vue'),
             meta: { requiresAuth: false }
         },
@@ -59,13 +58,31 @@ const router = createRouter({
             name: 'AdminLogin',
             component: () => import('../views/AdminLoginView.vue'),
         },
-    
         {
-            path: '/admin/dashboard',
-            name: 'AdminDashboard', // This name must match exactly what you use in router.push
-            component: () => import('../views/AdminDashboardView.vue'),
-            meta: { requiresAuth: true, role: 'admin' }
-        },
+            path: '/admin/add-user',
+            name: 'AddUserView',
+            component: () => import('../views/admin/AddUserView.vue'),
+            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
+          },
+          {
+            path: '/admin/delete-user',
+            name: 'DeleteUserView',
+            component: () => import('../views/admin/DeleteUserView.vue'),
+            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
+          },
+          {
+            path: '/admin/assign-role',
+            name: 'AssignRoleView',
+            component: () => import('../views/admin/AssignRoleView.vue'),
+            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
+          },
+          {
+            path: '/admin/update-user',
+            name: 'UpdateUserView',
+            component: () => import('../views/admin/UpdateUserView.vue'),
+            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
+          },
+
         
 
     ]
@@ -75,17 +92,22 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     const applicationStore = useApplicationStore();
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const isAdminRoute = to.meta.role === 'admin';
+    const requiredRole = to.meta.role; // This is the role required for the route
+  
+    console.log(`User Role: ${applicationStore.userRole}, Required Role: ${requiredRole}`);
     
     if (requiresAuth && !applicationStore.isAuthenticated) {
+      console.log('User is not authenticated, redirecting to login.');
       return next({ name: 'login' });
     }
     
-    if (requiresAuth && isAdminRoute && applicationStore.userRole !== 'admin') {
+    if (requiresAuth && requiredRole && applicationStore.userRole !== requiredRole) {
+      console.log('Incorrect role, redirecting to home.');
       return next({ name: 'home' });
     }
     
-    next();
+    console.log('Navigation allowed.');
+    next(); // If all checks pass, proceed to the route
   });
   
 export default router;
