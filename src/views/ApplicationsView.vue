@@ -139,48 +139,36 @@ async function fetchCitizenDetails(applicationId) {
   }
 }
 
-const updateApplicationStatus = async (status, rejectionReason = '') => {
+const updateApplicationStatus = async (status) => {
   if (!selectedApplicationId.value) {
     errorMessage.value = 'Application ID is not provided.';
     return;
   }
-  const secretaryEmail = store.email;
-  const secretaryUsername = store.username;
-  // Debug: Log the entire store state
-  console.log("Store state:", store);
 
-  // Debug: Log the userData from the store
-  console.log("User data in store:", store.userData);
-
-  // Debug: Log the retrieved email and username
-  console.log("Secretary email:", secretaryEmail);
-  console.log("Secretary username:", secretaryUsername);
-
-  if (!secretaryEmail || !secretaryUsername) {
-    console.error('Secretary email or username not available');
-    errorMessage.value = 'Secretary email or username not available';
-    return;
+  let rejectionReason = '';
+  // If the status is 'REJECTED', prompt the secretary to enter a rejection reason
+  if (status === 'REJECTED') {
+    rejectionReason = prompt('Please enter the reason for rejection:');
+    // If the secretary cancels the prompt without entering a reason, return and do nothing
+    if (rejectionReason === null) {
+      return;
+    }
   }
 
-  const queryParams = new URLSearchParams({
-    status: status,
-    email: secretaryEmail,
-    username: secretaryUsername,
-    rejectionReason: rejectionReason
-  }).toString();
+  const queryParams = new URLSearchParams({ status: status });
+  if (rejectionReason) {
+    queryParams.append('rejectionReason', rejectionReason);
+  }
 
-  const API_URL = `http://localhost:8080/api/bloodDonations/applications/${selectedApplicationId.value}/status?${queryParams}`;
+  const API_URL = `http://localhost:8080/api/bloodDonations/applications/${selectedApplicationId.value}/status?${queryParams.toString()}`;
 
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${store.accessToken}` // Ensure accessToken is correctly accessed
-      }
+        'Authorization': `Bearer ${store.accessToken}`, // Ensure accessToken is correctly accessed
+      },
     });
-
-    // Debug: Log the response status
-    console.log("Response status:", response.status);
 
     if (!response.ok) {
       throw new Error('Failed to update application status');
@@ -193,11 +181,9 @@ const updateApplicationStatus = async (status, rejectionReason = '') => {
   } catch (error) {
     console.error('Error updating application status:', error);
     errorMessage.value = error.toString();
-
-    // Debug: Log the error message
-    console.log("Error message:", errorMessage.value);
   }
 };
+
 
   // Initial fetch of applications
   fetchApplications();

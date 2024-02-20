@@ -98,24 +98,27 @@ const router = createRouter({
 
   
 router.beforeEach((to, from, next) => {
-    const applicationStore = useApplicationStore();
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const requiredRole = to.meta.role; // This is the role required for the route
+  const applicationStore = useApplicationStore();
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiredRole = to.meta.role; // The role required for the route
+
+  // Using optional chaining to safely access userRole
+  const userRole = applicationStore.user?.roles?.[0]?.name;
+
+  console.log(`User Role: ${userRole}, Required Role: ${requiredRole}`);
   
-    console.log(`User Role: ${applicationStore.userRole}, Required Role: ${requiredRole}`);
-    
-    if (requiresAuth && !applicationStore.isAuthenticated) {
+  if (requiresAuth && !applicationStore.isAuthenticated) {
       console.log('User is not authenticated, redirecting to login.');
       return next({ name: 'login' });
-    }
-    
-    if (requiresAuth && requiredRole && applicationStore.userRole !== requiredRole) {
+  }
+  
+  if (requiresAuth && requiredRole && userRole !== requiredRole) {
       console.log('Incorrect role, redirecting to home.');
       return next({ name: 'home' });
-    }
-    
-    console.log('Navigation allowed.');
-    next(); // If all checks pass, proceed to the route
-  });
+  }
   
+  console.log('Navigation allowed.');
+  next(); // If all checks pass, proceed to the route
+});
+
 export default router;

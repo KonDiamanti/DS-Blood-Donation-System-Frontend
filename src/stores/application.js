@@ -23,8 +23,6 @@ export const useApplicationStore = defineStore('application', () => {
   const userData = ref(null);
 
   const userRole = computed(() => userData.value.roles?.[0]);
-  const email = computed(() => userData.value.email); 
-  const username = computed(() => userData.value.username); 
 
   const setUserData = (tempUserData) => {
     console.log('Calling setUserData with:', tempUserData);
@@ -65,12 +63,10 @@ export const useApplicationStore = defineStore('application', () => {
     userData,
     isAuthenticated,
     userRole,
-    username, 
     setUserData,
     loadUserData,
     clearUserData,
     accessToken,
     checkJWT,
-    email
   };
 });
