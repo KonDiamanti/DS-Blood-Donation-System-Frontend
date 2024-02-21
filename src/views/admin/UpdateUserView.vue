@@ -111,14 +111,5 @@ onMounted(fetchUsers);
 </script>
 
 <style>
-/* Modal and other styles */
-.modal {
-  /* Style your modal */
-}
-.modal-content {
-  /* Style the modal content */
-}
-.close {
-  /* Style the close button */
-}
+
 </style>

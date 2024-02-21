@@ -88,7 +88,7 @@ const assignRole = async (userId) => {
     });
     if (response.ok) {
       alert('Role assigned successfully');
-      fetchUsers(); // Refresh the list to reflect the change
+      fetchUsers(); 
     } else {
       throw new Error('Failed to assign role');
     }

@@ -98,27 +98,25 @@ const router = createRouter({
 
   
 router.beforeEach((to, from, next) => {
-  const applicationStore = useApplicationStore();
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const requiredRole = to.meta.role; // The role required for the route
-
-  // Using optional chaining to safely access userRole
-  const userRole = applicationStore.user?.roles?.[0]?.name;
-
-  console.log(`User Role: ${userRole}, Required Role: ${requiredRole}`);
+    const applicationStore = useApplicationStore();
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const requiredRole = to.meta.role;
   
-  if (requiresAuth && !applicationStore.isAuthenticated) {
-      console.log('User is not authenticated, redirecting to login.');
+    const userRole = applicationStore.userRole;
+    const isAuthenticated = applicationStore.isAuthenticated;
+  
+    console.log(`Navigating to: ${to.path}, Requires Auth: ${requiresAuth}, Required Role: ${requiredRole}, User Role: ${userRole}, Is Authenticated: ${isAuthenticated}`);
+  
+    if (requiresAuth && !isAuthenticated) {
       return next({ name: 'login' });
-  }
-  
-  if (requiresAuth && requiredRole && userRole !== requiredRole) {
-      console.log('Incorrect role, redirecting to home.');
+    }
+    
+    if (requiresAuth && requiredRole && userRole !== requiredRole) {
       return next({ name: 'home' });
-  }
+    }
   
-  console.log('Navigation allowed.');
-  next(); // If all checks pass, proceed to the route
-});
+    next();
+  });
+  
 
 export default router;

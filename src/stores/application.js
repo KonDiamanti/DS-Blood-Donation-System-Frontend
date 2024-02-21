@@ -22,7 +22,8 @@ export const checkJWT = (token) => {
 export const useApplicationStore = defineStore('application', () => {
   const userData = ref(null);
 
-  const userRole = computed(() => userData.value.roles?.[0]);
+  const userRole = computed(() => userData.value?.roles?.[0]);
+
 
   const setUserData = (tempUserData) => {
     console.log('Calling setUserData with:', tempUserData);
