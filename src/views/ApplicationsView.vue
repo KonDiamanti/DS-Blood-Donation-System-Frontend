@@ -28,8 +28,8 @@
             <td>{{ application.status }}</td>
             <td>{{ new Date(application.createdAt).toLocaleDateString() }}</td>
             <td>
-              <button @click="fetchCitizenDetails(application.citizenId, application.id)">View Details</button>
-            </td>
+            <button @click="fetchCitizenDetails(application.id)">View Details</button>
+          </td>
           </tr>
         </tbody>
       </table>
@@ -60,19 +60,43 @@
   <li><strong>Has AIDS:</strong> {{ citizenDetails.donationDetails.hasAIDS }}</li>
 </ul>
 
-  
+  <!-- Buttons -->
   <div class="action-buttons">
     <button @click="updateApplicationStatus('APPROVED')" class="btn btn-success">Accept</button>
     <button @click="updateApplicationStatus('REJECTED')" class="btn btn-danger">Reject</button>
   </div>
 </div>
 
+    <!-- Success Message Modal -->
+    <div v-if="showSuccessModal" class="modal-overlay">
+      <div class="modal-box">
+        <h2 class="modal-header">Success</h2>
+        <div class="modal-body">
+          <p>{{ successMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeSuccessModal" class="modal-close-btn">Close</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Rejection Reason Modal -->
+    <div v-if="showRejectionModal" class="modal-overlay">
+      <div class="modal-box">
+        <h2 class="modal-header">Rejection Reason</h2>
+        <div class="modal-body">
+          <textarea v-model="rejectionReason" placeholder="Please enter the reason for rejection..." class="reason-textarea"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeRejectionModal" class="modal-close-btn">Cancel</button>
+          <button @click="submitRejectionReason" class="modal-submit-btn">Submit</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-
-
 import { ref } from 'vue';
 import { useApplicationStore } from '@/stores/application';
 
@@ -83,6 +107,26 @@ const loading = ref(false);
 const errorMessage = ref('');
 const citizenDetails = ref(null);
 const selectedApplicationId = ref(null);
+const showSuccessModal = ref(false);
+const successMessage = ref('');
+const showRejectionModal = ref(false);
+const rejectionReason = ref('');
+
+// New function to close the success modal
+const closeSuccessModal = () => {
+  showSuccessModal.value = false;
+};
+
+// New function to show the rejection reason modal
+const promptRejectionReason = () => {
+  showRejectionModal.value = true;
+};
+
+// New function to close the rejection modal
+const closeRejectionModal = () => {
+  showRejectionModal.value = false;
+  rejectionReason.value = ''; // Clear the reason
+};
 
 // Fetch all applications based on the selected status
 async function fetchApplications() {
@@ -145,20 +189,33 @@ const updateApplicationStatus = async (status) => {
     return;
   }
 
-  let rejectionReason = '';
-  // If the status is 'REJECTED', prompt the secretary to enter a rejection reason
-  if (status === 'REJECTED') {
-    rejectionReason = prompt('Please enter the reason for rejection:');
-    // If the secretary cancels the prompt without entering a reason, return and do nothing
-    if (rejectionReason === null) {
-      return;
-    }
+  if (status === 'APPROVED') {
+    // Directly update the status for approval
+    await performStatusUpdate(status);
+    successMessage.value = 'The application has been successfully approved.';
+    showSuccessModal.value = true;
+  } else if (status === 'REJECTED') {
+    // Prompt for a rejection reason
+    promptRejectionReason();
   }
+};
 
-  const queryParams = new URLSearchParams({ status: status });
-  if (rejectionReason) {
-    queryParams.append('rejectionReason', rejectionReason);
+// Function to submit the rejection reason and update the status
+const submitRejectionReason = async () => {
+  if (rejectionReason.value.trim()) {
+    await performStatusUpdate('REJECTED', rejectionReason.value.trim());
+    successMessage.value = 'The application has been successfully rejected.';
+    showSuccessModal.value = true;
+    closeRejectionModal();
+  } else {
+    alert('Please provide a rejection reason.');
   }
+};
+
+// Function to perform the status update API call
+const performStatusUpdate = async (status, reason = '') => {
+  let queryParams = new URLSearchParams({ status: status });
+  if (reason) queryParams.append('rejectionReason', reason);
 
   const API_URL = `http://localhost:8080/api/bloodDonations/applications/${selectedApplicationId.value}/status?${queryParams.toString()}`;
 
@@ -166,7 +223,7 @@ const updateApplicationStatus = async (status) => {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${store.accessToken}`, // Ensure accessToken is correctly accessed
+        'Authorization': `Bearer ${store.accessToken}`,
       },
     });
 
@@ -184,18 +241,78 @@ const updateApplicationStatus = async (status) => {
   }
 };
 
+// Initial fetch of applications
+fetchApplications();
+</script>
 
-  // Initial fetch of applications
-  fetchApplications();
-  </script>
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.modal-box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  padding: 20px;
+  z-index: 1001;
+}
 
-  <style scoped>
-  .citizen-details {
-    margin-top: 2rem;
-  }
+.modal-header {
+  margin-top: 0;
+  color: #333;
+}
 
-  .action-buttons {
-    margin-top: 1rem;
-  }
-  </style>
+.modal-body {
+  margin: 20px 0;
+}
+
+.reason-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical; /* Allow vertical resizing, might be useful for longer texts */
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-close-btn, .modal-submit-btn {
+  padding: 10px 20px;
+  margin-left: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-close-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.modal-submit-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Add hover effects to buttons */
+.modal-close-btn:hover, .modal-submit-btn:hover {
+  opacity: 0.8;
+}
+</style>
