@@ -19,14 +19,14 @@
 <script>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useApplicationStore } from '@/stores/application'; // Import your application store
+import { useApplicationStore } from '@/stores/application'; 
 
 export default {
   name: 'LoginView',
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const applicationStore = useApplicationStore(); // Use the store
+    const applicationStore = useApplicationStore(); 
     const errorMessage = ref('');
     const form = ref({
       username: '',
@@ -34,7 +34,7 @@ export default {
     });
 
     const userType = computed(() => {
-      return route.query.type || 'citizen'; // Default to 'citizen' if no type is specified
+      return route.query.type || 'citizen'; 
     });
 
     const handleSubmit = async () => {
@@ -52,16 +52,16 @@ export default {
     });
 
     if (!response.ok) {
-      // Attempt to read the response body and parse it as JSON
-      const text = await response.text(); // Read the response as text first
-      const errorData = text ? JSON.parse(text) : {}; // Parse the text as JSON if it's not empty
+
+      const text = await response.text(); 
+      const errorData = text ? JSON.parse(text) : {}; 
       const errorMessage = errorData.message || 'Incorrect username or password';
       throw new Error(errorMessage);
     }
 
     const data = await response.json();
-    applicationStore.setUserData(data); // Use your method to set user data
-    router.push('/'); // Redirect to home page after login
+    applicationStore.setUserData(data); 
+    router.push('/'); 
   } catch (error) {
     console.error(error);
     errorMessage.value = error.message;
@@ -75,6 +75,3 @@ export default {
 };
 </script>
 
-<style>
-/* Add any additional styling for your login form here */
-</style>

@@ -54,7 +54,6 @@ export default {
         router.push({ name: 'ViewUserView' });
       } catch (error) {
         console.error('Login failed:', error);
-        // Handle login failure, e.g., show an error message
       }
     };
 
@@ -67,75 +66,61 @@ export default {
 };
 </script>
 
-  
- <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-box {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
-  width: 100%;
+<style scoped>
+.login-container {
+  max-width: 400px; 
+  margin: 50px auto;
   padding: 20px;
-  z-index: 1001;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
 
-.modal-header {
-  margin-top: 0;
-  color: #333;
-}
-
-.modal-body {
-  margin: 20px 0;
-}
-
-.reason-textarea {
-  width: 100%;
-  height: 100px;
-  padding: 10px;
+h1 {
+  color: #333; 
+  text-align: center;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666; 
+}
+
+.form-group input[type="username"],
+.form-group input[type="password"] {
+  width: 100%; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
   border-radius: 4px;
-  resize: vertical; /* Allow vertical resizing, might be useful for longer texts */
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.modal-close-btn, .modal-submit-btn {
-  padding: 10px 20px;
-  margin-left: 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.modal-close-btn {
-  background-color: #f44336;
+button[type="submit"] {
+  width: 100%; 
+  padding: 12px 20px; 
+  background-color: #0056b3; 
   color: white;
+  border: none; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  font-size: 16px; 
+  font-weight: bold; 
+  transition: background-color 0.3s;
 }
 
-.modal-submit-btn {
-  background-color: #4CAF50;
-  color: white;
+button[type="submit"]:hover {
+  background-color: #003d82; 
 }
 
-/* Add hover effects to buttons */
-.modal-close-btn:hover, .modal-submit-btn:hover {
-  opacity: 0.8;
+.form-group input[type="username"]:focus,
+.form-group input[type="password"]:focus {
+  border-color: #0056b3; 
+  outline: none; 
+  box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
 }
 </style>

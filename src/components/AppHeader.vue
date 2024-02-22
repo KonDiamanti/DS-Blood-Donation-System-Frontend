@@ -30,6 +30,7 @@
             <li v-if="!isAuthenticated" class="nav-item">
               <router-link :to="{ name: 'login', query: { type: 'secretary' } }" class="nav-link">Login as Secretary</router-link>
             </li>
+
             <!-- Specific links for citizens -->
             <li v-if="isAuthenticated && userRole === 'ROLE_CITIZEN'" class="nav-item">
               <router-link to="/form" class="nav-link">Apply for Donation</router-link>
@@ -68,7 +69,7 @@
 import { defineComponent, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApplicationStore } from '@/stores/application';
-import logo from '@/components/icons/logo.png'; // Adjust this path according to your project structure
+import logo from '@/components/icons/logo.png'; 
 
 export default defineComponent({
   name: 'AppHeader',
@@ -83,7 +84,7 @@ export default defineComponent({
       await router.push({ name: 'home' });
     };
 
-    return { isAuthenticated, userRole, logout, logo }; // Include logo here
+    return { isAuthenticated, userRole, logout, logo }; 
   },
 });
 </script>
@@ -105,11 +106,9 @@ body, html {
 }
 
 header {
-  background: #b71c1c;
-  color: #ffffff;
-  padding: 30px 0;
-  text-align: center;
-  border-bottom: #f7f7f7 3px solid;
+  background-image: url('@/components/icons/background.jpg'); /* Replace with your image path */
+  background-size: cover;
+  background-position: center;
 }
 
 header a {
@@ -152,18 +151,10 @@ header a:hover {
   font-weight: bold;
 }
 
-/* Showcase */
-#showcase {
-  min-height: 400px;
-  background: url('@/components/icons/background.png') no-repeat 0 -400px;
-  text-align: center;
-  color: #ffffff;
-}
 
 #showcase h1 {
   margin-top: 100px;
   font-size: 55px;
-  margin-bottom: 10px;
 }
 
 #showcase p {
@@ -231,21 +222,7 @@ ul#services li {
   list-style: none;
   padding: 20px;
   border: #cccccc solid 1px;
-  margin-bottom: 5px;
   background: #e8e8e8;
-}
-
-/* Footer */
-footer {
-  padding: 20px;
-  margin-top: 20px;
-  color: #ffffff;
-  background-color: #e91e63;
-  text-align: center;
-}
-
-footer p {
-  margin: 0;
 }
 
 /* Media Queries */
@@ -263,9 +240,6 @@ footer p {
     width: 100%;
   }
 
-  header {
-    padding-bottom: 20px;
-  }
 }
 
 </style>

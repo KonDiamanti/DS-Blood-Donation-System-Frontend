@@ -2,17 +2,39 @@
   <div class="container mt-4">
     <h2>Citizen Profile</h2>
     <div v-if="loading">Loading...</div>
-    <div v-else-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
     <div v-else>
       <!-- View Mode -->
       <div v-if="!isEditMode">
-        <p><strong>First Name:</strong> {{ userData.firstName }}</p>
-        <p><strong>Last Name:</strong> {{ userData.lastName }}</p>
-        <p><strong>Age:</strong> {{ userData.age }}</p>
-        <p><strong>Phone Number:</strong> {{ userData.phoneNumber }}</p>
-        <p><strong>Email:</strong> {{ userData.email }}</p>
-        <p><strong>Area:</strong> {{ userData.area }}</p>
-        <p><strong>Blood Type:</strong> {{ userData.bloodType }}</p>
+        <div class="info-box">
+        <strong>First Name:</strong>
+        <span>{{ userData.firstName }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Last Name:</strong>
+        <span>{{ userData.lastName }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Age:</strong>
+        <span>{{ userData.age }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Phone Number :</strong>
+        <span>{{ userData.phoneNumber }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Email:</strong>
+        <span>{{ userData.email }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Selected Hospital:</strong>
+        <span>{{ userData.area }}</span>
+      </div>
+      <div class="info-box">
+        <strong>Blood Type:</strong>
+        <span>{{ userData.bloodType }}</span>
+      </div>
         <button class="btn btn-primary" @click="isEditMode = true">Update</button>
       </div>
 
@@ -53,12 +75,28 @@
       <option value="Sismanoglio Hospital">Sismanoglio Hospital</option>
     </select>
   </div>
-  
-  <!-- Blood Type is not editable, so it's displayed as text -->
   <div class="mb-3">
-    <label for="bloodType" class="form-label">Blood Type</label>
-    <input type="text" class="form-control" id="bloodType" v-model="userData.bloodType" disabled>
-  </div>
+  <label for="password" class="form-label">Password</label>
+  <input type="password" class="form-control" id="password" v-model="userData.password">
+  <small class="form-text text-muted">Leave blank if you do not want to change the password.</small>
+</div>
+  
+<!-- Blood Type as a dropdown -->
+<div class="mb-3">
+  <label for="bloodType" class="form-label">Blood Type</label>
+  <select id="bloodType" class="form-control" v-model="userData.bloodType" required>
+    <option value="">Select Blood Type</option>
+    <option value="A+">A+</option>
+    <option value="A-">A-</option>
+    <option value="B+">B+</option>
+    <option value="B-">B-</option>
+    <option value="AB+">AB+</option>
+    <option value="AB-">AB-</option>
+    <option value="O+">O+</option>
+    <option value="O-">O-</option>
+  </select>
+</div>
+
 
   <button type="submit" class="btn btn-success">Save Changes</button>
   <button type="button" class="btn btn-secondary" @click="isEditMode = false">Cancel</button>
@@ -77,7 +115,8 @@ const store = useApplicationStore();
 const userData = ref({});
 const loading = ref(true);
 const errorMessage = ref('');
-const isEditMode = ref(false); // Add this line
+const isEditMode = ref(false); 
+const successMessage = ref('');
 
 onMounted(async () => {
   fetchProfileData();
@@ -111,11 +150,12 @@ async function updateProfile() {
       area: userData.value.area,
       bloodType: userData.value.bloodType,
       age: userData.value.age,
+      ...(userData.value.password && { password: userData.value.password }),
     };
 
     const API_URL = 'http://localhost:8080/api/citizen/update';
     const response = await fetch(API_URL, {
-      method: 'PUT', // Ensure the method is PUT as your backend might expect it for an update operation
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${store.accessToken}`,
@@ -127,14 +167,94 @@ async function updateProfile() {
       throw new Error('Failed to update profile');
     }
 
-    alert('Profile updated successfully');
+    successMessage.value = 'Profile updated successfully!';
+
+    errorMessage.value = '';
+
+    isEditMode.value = false;
+
+    await fetchProfileData();
+    
   } catch (error) {
     errorMessage.value = error.message || 'An error occurred while updating the profile.';
   }
 }
 </script>
 
+<style scoped>
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
 
-<style>
-/* Your styles here */
+h2 {
+  text-align: center;
+  color: #333;
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+
+.info-box {
+  background: #f9f9f9; 
+  border: 1px solid #e3e3e3; 
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+}
+
+.info-box strong {
+  color: #333;
+  margin-right: 1rem; 
+}
+
+/* Additional styling for buttons */
+button.btn {
+  width: auto;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+button.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.btn-primary:hover {
+  background-color: #254972;
+}
+
+.alert-success, .alert-danger {
+  text-align: center;
+  border-radius:4px;
+margin-bottom: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.container {
+width: 90%;
+margin-top: 1rem;
+padding: 1rem;
+}
+
+.info-box {
+flex-direction: column; 
+align-items: flex-start; 
+}
+}
 </style>

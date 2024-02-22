@@ -3,7 +3,7 @@
     <h2>Register as Citizen</h2>
     <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
   <form @submit.prevent="handleSubmit">
-    <!-- Your form fields -->
+    <!-- form fields -->
     <div class="mb-3">
         <label for="username" class="form-label">Username</label>
         <input type="text" id="username" class="form-control" v-model="form.username" required>
@@ -31,7 +31,7 @@
       <div class="mb-3">
     <label for="area" class="form-label">Hospital</label>
     <select id="area" class="form-control" v-model="form.area" required>
-      <option value="">Select Area</option>
+      <option value="">Select Hospital</option>
       <option value="Kratiko Hospital">Kratiko Hospital</option>
       <option value="Attikon Hospital">Attikon Hospital</option>
       <option value="Tzaneio Hospital">Tzaneio Hospital </option>
@@ -66,34 +66,43 @@
 import { reactive, ref } from 'vue';
 
 const form = reactive({
-username:'',
-firstName: '',
-lastName: '',
-age: null,
-phoneNumber: '',
-email: '',
-area: '',
-bloodType: '',
-password: '',
+  username: '',
+  firstName: '',
+  lastName: '',
+  age: null,
+  phoneNumber: '',
+  email: '',
+  area: '',
+  bloodType: '',
+  password: '',
 });
 
 const successMessage = ref('');
 const errorMessage = ref('');
+
+const validateUsername = () => {
+  if (form.username.length < 3) {
+    errorMessage.value = 'Username must be at least 3 characters long.';
+    return false;
+  }
+  return true;
+};
 
 const validatePassword = () => {
   if (form.password.length < 6) {
     errorMessage.value = 'Password must be at least 6 characters long.';
     return false;
   }
-  errorMessage.value = '';
   return true;
 };
 
+
 const handleSubmit = async () => {
-  // Validate password before submitting
-  if (!validatePassword()) {
-    return; // Stop the form submission if password validation fails
+  if (!validateUsername() || !validatePassword()) {
+    return; 
   }
+  
+  errorMessage.value = '';
   
   const API_URL = 'http://localhost:8080/api/auth/signup'; 
   try {
@@ -111,11 +120,11 @@ const handleSubmit = async () => {
     }
 
     successMessage.value = 'Registration successful! Please login.';
-    // Reset form fields after successful registration
+
     Object.keys(form).forEach(key => form[key] = '');
   } catch (error) {
     console.error('Registration error', error);
-    successMessage.value = ''; // Clear success message in case of error
+    successMessage.value = ''; 
     errorMessage.value = error.message || 'An unexpected error occurred.';
   }
 };

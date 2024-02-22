@@ -9,14 +9,13 @@ const router = useRouter();
 const { loadUserData } = useApplicationStore();
 
 onBeforeMount(() => {
-  // Load user data here
   loadUserData();
 });
 
 onMounted(() => {
   const handleKeyDown = (event) => {
-    console.log(event); // To confirm the event is captured
-    // Check for Ctrl+Alt and the physical 'A' key, regardless of keyboard layout
+    console.log(event); 
+
     if (event.ctrlKey && event.altKey && event.code === 'KeyA') {
       router.push({ name: 'AdminLogin' });
     }
