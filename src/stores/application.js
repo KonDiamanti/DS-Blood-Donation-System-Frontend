@@ -47,8 +47,8 @@ export const useApplicationStore = defineStore('application', () => {
   
 
   const clearUserData = () => {
-    sessionStorage.removeItem('userData');
     userData.value = null;
+    sessionStorage.removeItem('userData');
   };
 
   const isAuthenticated = computed(() => {

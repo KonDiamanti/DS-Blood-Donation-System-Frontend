@@ -110,6 +110,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useApplicationStore } from '@/stores/application';
+import router from '@/router';
 
 const store = useApplicationStore();
 const userData = ref({});
@@ -140,8 +141,10 @@ async function fetchProfileData() {
 }
 
 async function updateProfile() {
+  const emailChanged = userData.value.email !== store.userData.email;
+  const passwordChanged = userData.value.password && userData.value.password.trim() !== '';
+
   try {
-    // Ensures the request payload matches the CitizenUpdate model
     const payload = {
       firstName: userData.value.firstName,
       lastName: userData.value.lastName,
@@ -150,7 +153,7 @@ async function updateProfile() {
       area: userData.value.area,
       bloodType: userData.value.bloodType,
       age: userData.value.age,
-      ...(userData.value.password && { password: userData.value.password }),
+      ...(passwordChanged && { password: userData.value.password }),
     };
 
     const API_URL = 'http://localhost:8080/api/citizen/update';
@@ -164,21 +167,34 @@ async function updateProfile() {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update profile');
+
+      const textResponse = await response.text();
+      if (textResponse) {
+        const errorData = JSON.parse(textResponse);
+        throw new Error(`Failed to update profile: ${errorData.message}`);
+      } else {
+        throw new Error(`Failed to update profile: Status code ${response.status}`);
+      }
     }
 
     successMessage.value = 'Profile updated successfully!';
+    if (emailChanged || passwordChanged) {
+      successMessage.value += ' Please log in with your new credentials.';
+      store.clearUserData(); 
+      setTimeout(() => {
+        router.push({ name: 'login' }); 
+      }, 3000);
+    } else {
+      isEditMode.value = false;
+      await fetchProfileData();
+    }
 
-    errorMessage.value = '';
-
-    isEditMode.value = false;
-
-    await fetchProfileData();
-    
   } catch (error) {
     errorMessage.value = error.message || 'An error occurred while updating the profile.';
   }
 }
+
+
 </script>
 
 <style scoped>
