@@ -29,7 +29,7 @@
         <input type="email" id="email" class="form-control" v-model="form.email" required>
       </div>
       <div class="mb-3">
-    <label for="area" class="form-label">Area</label>
+    <label for="area" class="form-label">Hospital</label>
     <select id="area" class="form-control" v-model="form.area" required>
       <option value="">Select Area</option>
       <option value="Kratiko Hospital">Kratiko Hospital</option>

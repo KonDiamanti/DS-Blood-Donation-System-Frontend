@@ -58,30 +58,6 @@ const router = createRouter({
             name: 'AdminLogin',
             component: () => import('../views/AdminLoginView.vue'),
         },
-        {
-            path: '/admin/add-user',
-            name: 'AddUserView',
-            component: () => import('../views/admin/AddUserView.vue'),
-            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
-          },
-          {
-            path: '/admin/delete-user',
-            name: 'DeleteUserView',
-            component: () => import('../views/admin/DeleteUserView.vue'),
-            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
-          },
-          {
-            path: '/admin/assign-role',
-            name: 'AssignRoleView',
-            component: () => import('../views/admin/AssignRoleView.vue'),
-            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
-          },
-          {
-            path: '/admin/update-user',
-            name: 'UpdateUserView',
-            component: () => import('../views/admin/UpdateUserView.vue'),
-            meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
-          },
           {
             path: '/admin/users-container',
             name: 'ViewUserView',
@@ -89,9 +65,6 @@ const router = createRouter({
             meta: { requiresAuth: true, role: 'ROLE_ADMIN' }
           },
           
-
-
-        
 
     ]
 });

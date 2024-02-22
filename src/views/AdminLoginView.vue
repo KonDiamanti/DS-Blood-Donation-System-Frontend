@@ -51,8 +51,7 @@ export default {
           accessToken: data.accessToken,
         });
 
-        // Assuming 'AddUserView' is the default view for admin after login
-        router.push({ name: 'AddUserView' });
+        router.push({ name: 'ViewUserView' });
       } catch (error) {
         console.error('Login failed:', error);
         // Handle login failure, e.g., show an error message
