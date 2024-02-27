@@ -2,6 +2,8 @@
 
 This project is the frontend part of the DS Blood Donation System. It is built with Vue.js and uses Pinia for state management and Vue Router for routing.
 
+For the backend application, visit this repository: https://github.com/AAleksandros/HUA-DIT-Distributed-Systems
+
 ## Recommended IDE Setup
 
 For an optimal  experience, we recommend setting up the project in [Visual Studio Code (VSCode)](https://code.visualstudio.com/) 
